@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — Popchakk2paris</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.admin{max-width:900px;margin:auto;padding:100px 20px}
+.admin-box{background:var(--glass);border:1px solid var(--line);padding:25px;border-radius:22px;margin-bottom:20px}
+input,textarea,select{width:100%;padding:14px;margin:8px 0 15px;background:#0b0e15;border:1px solid var(--line);border-radius:10px;color:white}
+textarea{min-height:130px}
+button{padding:13px 20px;border:0;border-radius:10px;background:var(--gold);cursor:pointer;font-weight:bold}
+.item{padding:15px;border-bottom:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main class="admin">
+<a href="../index.html" class="back">← Retour au site</a>
+<h1>Administration</h1>
+
+<div id="login" class="admin-box">
+<h2>🔐 Connexion</h2>
+<input id="password" type="password" placeholder="Mot de passe">
+<button onclick="login()">Entrer</button>
+</div>
+
+<div id="panel" style="display:none">
+<div class="admin-box">
+<h2>📰 Ajouter une analyse</h2>
+<input id="title" placeholder="Titre">
+<select id="category">
+<option>Real Madrid</option>
+<option>Mercato</option>
+<option>Champions League</option>
+<option>Ballon d'Or</option>
+<option>Actualités</option>
+<option>Tactique</option>
+</select>
+<textarea id="text" placeholder="Contenu de l'analyse"></textarea>
+<button onclick="addArticle()">Publier</button>
+</div>
+
+<div class="admin-box">
+<h2>🎬 Ajouter une vidéo YouTube</h2>
+<input id="video" placeholder="ID YouTube (ex: a1oDPM6JA4I)">
+<input id="videoTitle" placeholder="Titre de la vidéo">
+<button onclick="addVideo()">Ajouter la vidéo</button>
+</div>
+
+<div class="admin-box">
+<h2>📋 Contenu publié</h2>
+<div id="list"></div>
+</div>
+</div>
+</main>
+
+<script>
+const KEY="popchakk_admin";
+let articles=JSON.parse(localStorage.getItem(KEY+"_articles")||"[]");
+let videos=JSON.parse(localStorage.getItem(KEY+"_videos")||"[]");
+
+function login(){
+if(document.getElementById("password").value==="popchakk2026"){
+document.getElementById("login").style.display="none";
+document.getElementById("panel").style.display="block";
+render();
+}else alert("Mot de passe incorrect");
+}
+
+function save(){
+localStorage.setItem(KEY+"_articles",JSON.stringify(articles));
+localStorage.setItem(KEY+"_videos",JSON.stringify(videos));
+render();
+}
+
+function addArticle(){
+let title=document.getElementById("title").value.trim();
+let text=document.getElementById("text").value.trim();
+let category=document.getElementById("category").value;
+if(!title||!text)return alert("Remplis les champs");
+articles.unshift({title,category,text,date:new Date().toLocaleDateString("fr-FR")});
+document.getElementById("title").value="";
+document.getElementById("text").value="";
+save();
+}
+
+function addVideo(){
+let id=document.getElementById("video").value.trim();
+let title=document.getElementById("videoTitle").value.trim();
+if(!id||!title)return alert("Remplis les champs");
+videos.unshift({id,title,category:"FOOTBALL"});
+document.getElementById("video").value="";
+document.getElementById("videoTitle").value="";
+save();
+}
+
+function removeArticle(i){articles.splice(i,1);save()}
+function removeVideo(i){videos.splice(i,1);save()}
+
+function render(){
+let html="";
+articles.forEach((a,i)=>html+=`<div class="item">📰 ${a.title}<br><small>${a.category}</small><br><button onclick="removeArticle(${i})">Supprimer</button></div>`);
+videos.forEach((v,i)=>html+=`<div class="item">🎬 ${v.title}<br><small>${v.id}</small><br><button onclick="removeVideo(${i})">Supprimer</button></div>`);
+document.getElementById("list").innerHTML=html||"Aucun contenu.";
+}
+</script>
+</body>
+</html>
